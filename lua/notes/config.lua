@@ -19,11 +19,8 @@ M.defaults = {
 		},
 	},
 	templates = {
-		daily = {
-			tags = "[#daily]",
-		},
+		daily = {},
 		quick = {
-			tags = "[]",
 			id_length = 8,
 		},
 	},
@@ -36,14 +33,14 @@ M.options = {}
 function M.setup(user_config)
 	M.options = vim.tbl_deep_extend("force", M.defaults, user_config or {})
 
-	-- Expand the pkm_dir path if provided
+	-- Validate required configuration first
+	M.validate()
+
+	-- Expand the pkm_dir path after validation
 	if M.options.pkm_dir then
 		local utils = require("notes.utils")
 		M.options.pkm_dir = utils.expand_path(M.options.pkm_dir)
 	end
-
-	-- Validate required configuration
-	M.validate()
 end
 
 -- Validation helper functions using centralized error handling
@@ -165,32 +162,46 @@ local function validate_template_config(template, path)
 		errors.type_error(path, "function or table", type(template))
 	end
 
-	-- Validate table-based template
+	-- Determine template type and validate accordingly
 	if template.file then
 		-- File-based template
 		validate_type(template.file, "string", path .. ".file")
+		-- File templates can have additional properties like tags
+		if template.tags then
+			validate_type(template.tags, "string", path .. ".tags")
+		end
 	elseif template.sections then
 		-- Object-based template with sections
 		validate_type(template.sections, "table", path .. ".sections")
 		for i, section in ipairs(template.sections) do
 			validate_template_section(section, path .. ".sections[" .. i .. "]")
 		end
+		-- Object templates can have additional properties
+		if template.header then
+			validate_type(template.header, "string", path .. ".header")
+		end
+		if template.footer then
+			validate_type(template.footer, "string", path .. ".footer")
+		end
+		if template.tags then
+			validate_type(template.tags, "string", path .. ".tags")
+		end
 	elseif template[1] then
-		-- Array-based template (legacy support)
+		-- Array-based template - should ONLY contain array elements
 		validate_array(template, path)
-	end
-
-	-- Validate common template properties
-	if template.header then
-		validate_type(template.header, "string", path .. ".header")
-	end
-
-	if template.footer then
-		validate_type(template.footer, "string", path .. ".footer")
-	end
-
-	if template.tags then
-		validate_type(template.tags, "string", path .. ".tags")
+		-- Array templates should not have other properties mixed in
+	else
+		-- Configuration-only template (just tags, id_length, etc.)
+		-- This is valid - just validate the properties
+		if template.tags then
+			validate_type(template.tags, "string", path .. ".tags")
+		end
+		if template.header then
+			validate_type(template.header, "string", path .. ".header")
+		end
+		if template.footer then
+			validate_type(template.footer, "string", path .. ".footer")
+		end
 	end
 end
 
