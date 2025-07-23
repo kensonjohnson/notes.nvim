@@ -10,10 +10,7 @@ A Neovim plugin for managing daily notes and quick notes with frontmatter suppor
 - **Frontmatter Support**: Automatic YAML frontmatter generation
 - **Auto-timestamps**: Automatically update modified timestamps
 - **Customizable**: Configure paths, templates, and keymaps
-
 ## Installation
-
-This plugin is currently set up as a local plugin in your Neovim configuration using Lazy.nvim.
 
 ### Requirements
 
@@ -26,16 +23,14 @@ Common PKM directory examples:
 
 ### Setup with Lazy.nvim
 
-Create a file `lua/plugins/notes-nvim.lua` in your Neovim config:
+Add this to your Lazy.nvim plugin configuration:
 
 ```lua
 return {
-  dir = vim.fn.stdpath('config') .. '/lua/notes-nvim',
-  name = 'notes-nvim',
-  lazy = true,
+  "kensonjohnson/notes.nvim",
   config = function()
-    require('notes-nvim').setup({
-      pkm_dir = 'C:\\Users\\yourusername\\pkm',  -- REQUIRED
+    require('notes').setup({
+      pkm_dir = '~/Documents/pkm',  -- REQUIRED: Change to your PKM directory
       -- Optional: customize other settings
       frontmatter = {
         use_frontmatter = true,
@@ -59,10 +54,9 @@ return {
     })
   end,
   keys = {
-    { '<leader>nd', function() require('notes-nvim').daily_note() end, desc = 'Open daily note' },
-    { '<leader>nt', function() require('notes-nvim').tomorrow_note() end, desc = 'Open tomorrow note' },
-    { '<leader>nn', function() require('notes-nvim').quick_note() end, desc = 'Create quick note' },
-  },
+    { '<leader>nd', function() require('notes').daily_note() end, desc = 'Open daily note' },
+    { '<leader>nt', function() require('notes').tomorrow_note() end, desc = 'Open tomorrow note' },
+    { '<leader>nn', function() require('notes').quick_note() end, desc = 'Create quick note' },  },
   cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote' },
 }
 ```
@@ -114,11 +108,10 @@ The `setup()` function accepts the following options:
 
 ```lua
 -- Call functions directly
-require('notes-nvim').daily_note()
-require('notes-nvim').tomorrow_note()
-require('notes-nvim').quick_note()
+require('notes').daily_note()
+require('notes').tomorrow_note()
+require('notes').quick_note()
 ```
-
 ## Directory Structure
 
 Daily notes are organized as:
