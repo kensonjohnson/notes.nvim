@@ -300,6 +300,10 @@ The plugin provides helpful error messages with actionable suggestions:
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
 
+## AI
+
+Try using the [llms.md](/llms.md) file to improve generated output!
+
 ## 📄 License
 
 MIT License - see LICENSE file for details.
