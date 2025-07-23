@@ -33,6 +33,12 @@ M.options = {}
 function M.setup(user_config)
   M.options = vim.tbl_deep_extend('force', M.defaults, user_config or {})
   
+  -- Expand the pkm_dir path if provided
+  if M.options.pkm_dir then
+    local utils = require('notes.utils')
+    M.options.pkm_dir = utils.expand_path(M.options.pkm_dir)
+  end
+  
   -- Validate required configuration
   M.validate()
 end

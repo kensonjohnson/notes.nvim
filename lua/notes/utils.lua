@@ -7,6 +7,17 @@ function M.ensure_dir(path)
   vim.fn.mkdir(path, 'p')
 end
 
+-- Helper function to expand paths (handle ~ and environment variables)
+function M.expand_path(path)
+  if not path then return nil end
+  
+  -- Handle tilde expansion and environment variables (cross-platform)
+  path = vim.fn.expand(path)
+  
+  -- Convert to absolute path with correct separators
+  return vim.fn.fnamemodify(path, ':p')
+end
+
 -- Cross-platform path joining function
 function M.join_path(...)
   local parts = {...}
