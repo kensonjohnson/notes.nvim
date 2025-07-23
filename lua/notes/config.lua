@@ -6,8 +6,6 @@ local M = {}
 M.defaults = {
 	pkm_dir = nil, -- REQUIRED: Must be set by user
 
-
-
 	frontmatter = {
 		use_frontmatter = true,
 		auto_update_modified = true,
