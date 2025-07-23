@@ -75,7 +75,7 @@ end
 
 -- Tomorrow's daily note
 function M.tomorrow_note(config)
-  local tomorrow_timestamp = os.time() + 24 * 60 * 60
+  local tomorrow_timestamp = dates.add_days(os.time(), 1)
   M.create_daily_note_for_timestamp(tomorrow_timestamp, config)
 end
 
@@ -83,8 +83,8 @@ end
 function M.quick_note(config)
   local inbox_dir = utils.join_path(config.pkm_dir, '+Inbox')
 
-  -- Generate a random filename (8 characters)
-  local random_name = utils.create_id(8)
+  -- Generate a random filename
+  local random_name = utils.create_id(config.templates.quick.id_length)
   local full_path = utils.join_path(inbox_dir, random_name .. '.md')
 
   -- Ensure inbox directory exists

@@ -90,7 +90,9 @@ function M.update_modified_timestamp(config)
   if not M.is_pkm_file(filepath, config.pkm_dir) then return end
   
   local buf = vim.api.nvim_get_current_buf()
-  local lines = vim.api.nvim_buf_get_lines(buf, 0, 20, false) -- Check first 20 lines
+  local config = require('notes.config')
+  local scan_lines = config.options.frontmatter.scan_lines
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, scan_lines, false)
   
   -- Check if file has frontmatter
   if #lines < 3 or lines[1] ~= '---' then return end

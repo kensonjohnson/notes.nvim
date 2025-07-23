@@ -2,6 +2,9 @@
 
 local M = {}
 
+-- Constants
+local SECONDS_PER_DAY = 24 * 60 * 60
+
 -- Parse date input and return a timestamp
 -- Accepts: integers (days offset), date strings, or nil (today)
 function M.parse_date_input(input)
@@ -18,7 +21,7 @@ function M.parse_date_input(input)
   if days_offset then
     -- Integer input: add/subtract days from today
     local today = os.time()
-    local target_timestamp = today + (days_offset * 24 * 60 * 60)
+    local target_timestamp = today + (days_offset * SECONDS_PER_DAY)
     return target_timestamp, nil
   end
   
@@ -75,9 +78,9 @@ function M.parse_relative_date(date_str)
   if lower_str == "today" then
     return today
   elseif lower_str == "tomorrow" then
-    return today + 24 * 60 * 60
+    return today + SECONDS_PER_DAY
   elseif lower_str == "yesterday" then
-    return today - 24 * 60 * 60
+    return today - SECONDS_PER_DAY
   end
   
   -- Could add more relative dates here (next monday, etc.)
@@ -144,14 +147,14 @@ end
 
 -- Add days to a timestamp
 function M.add_days(timestamp, days)
-  return timestamp + (days * 24 * 60 * 60)
+  return timestamp + (days * SECONDS_PER_DAY)
 end
 
 -- Get a human-readable description of a date relative to today
 function M.get_relative_description(timestamp)
   local today = os.time()
   local diff_seconds = timestamp - today
-  local diff_days = math.floor(diff_seconds / (24 * 60 * 60))
+  local diff_days = math.floor(diff_seconds / SECONDS_PER_DAY)
   
   if diff_days == 0 then
     return "today"
