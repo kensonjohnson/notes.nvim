@@ -1,5 +1,6 @@
 -- Configuration module for notes.nvim plugin
 
+local errors = require("notes.errors")
 local M = {}
 
 -- Default configuration
@@ -46,45 +47,24 @@ function M.setup(user_config)
 	M.validate()
 end
 
--- Validation helper functions
+-- Validation helper functions using centralized error handling
 local function validate_type(value, expected_type, path)
 	if type(value) ~= expected_type then
-		error(
-			string.format(
-				"notes.nvim: Invalid type for '%s'. Expected %s, got %s.\n" .. "Please check your configuration.",
-				path,
-				expected_type,
-				type(value)
-			)
-		)
+		errors.type_error(path, expected_type, type(value))
 	end
 end
 
 local function validate_number_range(value, min, max, path)
 	validate_type(value, "number", path)
 	if value < min or value > max then
-		error(
-			string.format(
-				"notes.nvim: Invalid value for '%s'. Expected number between %d and %d, got %d.\n"
-					.. "Please adjust your configuration.",
-				path,
-				min,
-				max,
-				value
-			)
-		)
+		errors.range_error(path, min, max, value)
 	end
 end
 
 local function validate_string_not_empty(value, path)
 	validate_type(value, "string", path)
 	if value == "" then
-		error(
-			string.format(
-				"notes.nvim: Invalid value for '%s'. String cannot be empty.\n" .. "Please provide a valid value.",
-				path
-			)
-		)
+		errors.empty_string_error(path)
 	end
 end
 
@@ -95,24 +75,10 @@ local function validate_array(value, path)
 	for k, v in pairs(value) do
 		count = count + 1
 		if type(k) ~= "number" or k ~= count then
-			error(
-				string.format(
-					"notes.nvim: Invalid value for '%s'. Expected array (table with consecutive integer keys), got table with mixed keys.\n"
-						.. "Example: { 'item1', 'item2', 'item3' }",
-					path
-				)
-			)
+			errors.array_structure_error(path)
 		end
 		if type(v) ~= "string" then
-			error(
-				string.format(
-					"notes.nvim: Invalid value for '%s[%d]'. Expected string, got %s.\n"
-						.. "All array items must be strings.",
-					path,
-					k,
-					type(v)
-				)
-			)
+			errors.type_error(path .. "[" .. k .. "]", "string", type(v))
 		end
 	end
 end
@@ -143,14 +109,7 @@ local function validate_frontmatter(frontmatter)
 		local valid_fields = { "id", "created", "modified", "tags" }
 		for field, enabled in pairs(frontmatter.fields) do
 			if type(field) ~= "string" then
-				error(
-					string.format(
-						"notes.nvim: Invalid field name in 'frontmatter.fields'. Expected string, got %s.\n"
-							.. "Valid fields: %s",
-						type(field),
-						table.concat(valid_fields, ", ")
-					)
-				)
+				errors.type_error("frontmatter.fields key", "string", type(field))
 			end
 
 			local is_valid_field = false
@@ -162,13 +121,7 @@ local function validate_frontmatter(frontmatter)
 			end
 
 			if not is_valid_field then
-				error(
-					string.format(
-						"notes.nvim: Unknown field '%s' in 'frontmatter.fields'.\n" .. "Valid fields: %s",
-						field,
-						table.concat(valid_fields, ", ")
-					)
-				)
+				errors.unknown_field_error(field, "frontmatter.fields", valid_fields)
 			end
 
 			validate_type(enabled, "boolean", "frontmatter.fields." .. field)
@@ -214,27 +167,13 @@ end
 function M.validate()
 	-- Validate required pkm_dir
 	if not M.options.pkm_dir then
-		error(
-			"notes.nvim: 'pkm_dir' is required. Please set it in your configuration:\n"
-				.. "require('notes').setup({ pkm_dir = '/path/to/your/pkm' })\n\n"
-				.. "This should be the path to your Personal Knowledge Management directory."
-		)
+		errors.required_config_error("pkm_dir", "require('notes').setup({ pkm_dir = '/path/to/your/pkm' })")
 	end
 
 	validate_string_not_empty(M.options.pkm_dir, "pkm_dir")
 
 	if not vim.fn.isdirectory(M.options.pkm_dir) then
-		error(
-			"notes.nvim: PKM directory does not exist: "
-				.. M.options.pkm_dir
-				.. "\n\n"
-				.. "Please either:\n"
-				.. "1. Create the directory: mkdir -p '"
-				.. M.options.pkm_dir
-				.. "'\n"
-				.. "2. Update your configuration to point to an existing directory\n"
-				.. "3. Use ~ for home directory: ~/Documents/notes"
-		)
+		errors.directory_not_found_error(M.options.pkm_dir)
 	end
 
 	-- Validate other configuration sections

@@ -2,6 +2,7 @@
 
 local utils = require("notes.utils")
 local dates = require("notes.dates")
+local errors = require("notes.errors")
 local M = {}
 
 -- Core function to create daily note for a given timestamp
@@ -56,14 +57,14 @@ function M.dynamic_daily_note(input, config)
 	local timestamp, error_msg = dates.parse_date_input(input)
 
 	if not timestamp then
-		vim.notify("Error: " .. (error_msg or "Invalid date input"), vim.log.levels.ERROR)
+		errors.invalid_date_input_error(input, error_msg)
 		return
 	end
 
 	-- Show user what date we're opening
 	local description = dates.get_relative_description(timestamp)
 	local date_str = os.date("%A, %B %d, %Y", timestamp)
-	vim.notify("Opening daily note for " .. date_str .. " (" .. description .. ")")
+	errors.daily_note_opened(date_str, description)
 
 	M.create_daily_note_for_timestamp(timestamp, config)
 end

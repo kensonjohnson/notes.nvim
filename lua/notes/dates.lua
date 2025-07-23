@@ -1,5 +1,6 @@
 -- Date parsing and manipulation module for notes.nvim plugin
 
+local errors = require("notes.errors")
 local M = {}
 
 -- Constants
@@ -10,7 +11,7 @@ local SECONDS_PER_DAY = 24 * 60 * 60
 function M.parse_date_input(input)
 	if not input then
 		-- No input = today
-		return os.time(), nil
+		return errors.success(os.time())
 	end
 
 	-- Convert to string if it's a number
@@ -22,17 +23,17 @@ function M.parse_date_input(input)
 		-- Integer input: add/subtract days from today
 		local today = os.time()
 		local target_timestamp = today + (days_offset * SECONDS_PER_DAY)
-		return target_timestamp, nil
+		return errors.success(target_timestamp)
 	end
 
 	-- Try to parse as date string
 	local timestamp = M.parse_date_string(input_str)
 	if timestamp then
-		return timestamp, nil
+		return errors.success(timestamp)
 	end
 
 	-- If we get here, the input is invalid
-	return nil, "Invalid date input: " .. input_str
+	return errors.internal_error("Invalid date input: " .. input_str)
 end
 
 -- Parse various date string formats
