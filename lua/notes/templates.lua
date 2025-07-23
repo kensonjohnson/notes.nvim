@@ -73,9 +73,8 @@ M.defaults = {
 		},
 	},
 	quick = {
-		sections = {
-			{ title = "Quick Note", content = "" },
-		},
+		header = "# {{note_id}}",
+		sections = {},
 	},
 }
 
