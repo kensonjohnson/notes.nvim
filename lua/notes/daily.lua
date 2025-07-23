@@ -3,6 +3,7 @@
 local utils = require("notes.utils")
 local dates = require("notes.dates")
 local errors = require("notes.errors")
+local templates = require("notes.templates")
 local M = {}
 
 -- Core function to create daily note for a given timestamp
@@ -26,25 +27,29 @@ function M.create_daily_note_for_timestamp(timestamp, config)
 
 	-- Create the daily note if it doesn't exist
 	if vim.fn.filereadable(full_path) == 0 then
-		local frontmatter = utils.generate_frontmatter(note_name, config.templates.daily.tags, config)
+		-- Create template context
+		local context = templates.create_context(timestamp, "daily", note_name)
 
-		local template = {}
-		-- Add frontmatter
-		for _, line in ipairs(frontmatter) do
-			table.insert(template, line)
+		-- Generate note content using template system
+		local template_config = config.templates.daily
+		local tags = (config.templates.daily and config.templates.daily.tags) or "[#daily]"
+
+		-- If template only has tags (no actual template content), use nil to trigger defaults
+		if
+			template_config
+			and not template_config.sections
+			and not template_config.header
+			and not template_config.footer
+			and not template_config.file
+			and not template_config[1]
+			and type(template_config) ~= "function"
+		then
+			template_config = nil
 		end
 
-		-- Add content header
-		table.insert(template, "# " .. weekday .. ", " .. month_abbr .. " " .. day .. ", " .. year)
-		table.insert(template, "")
+		local content = templates.generate_note_content(template_config, context, tags, config)
 
-		-- Add sections from config
-		for _, section in ipairs(config.templates.daily.sections) do
-			table.insert(template, "## " .. section)
-			table.insert(template, "")
-		end
-
-		vim.fn.writefile(template, full_path)
+		vim.fn.writefile(content, full_path)
 	end
 
 	-- Change to PKM directory and open the file
@@ -92,21 +97,29 @@ function M.quick_note(config)
 	utils.ensure_dir(inbox_dir)
 
 	-- Create the note file with template
-	local frontmatter = utils.generate_frontmatter(random_name, config.templates.quick.tags, config)
+	-- Create template context
+	local context = templates.create_context(os.time(), "quick", random_name)
 
-	local template = {}
-	-- Add frontmatter
-	for _, line in ipairs(frontmatter) do
-		table.insert(template, line)
+	-- Generate note content using template system
+	local template_config = config.templates.quick
+	local tags = (config.templates.quick and config.templates.quick.tags) or "[]"
+
+	-- If template only has tags/id_length (no actual template content), use nil to trigger defaults
+	if
+		template_config
+		and not template_config.sections
+		and not template_config.header
+		and not template_config.footer
+		and not template_config.file
+		and not template_config[1]
+		and type(template_config) ~= "function"
+	then
+		template_config = nil
 	end
 
-	-- Add content
-	vim.list_extend(template, {
-		"# " .. random_name,
-		"",
-	})
+	local content = templates.generate_note_content(template_config, context, tags, config)
 
-	vim.fn.writefile(template, full_path)
+	vim.fn.writefile(content, full_path)
 
 	-- Change to PKM directory and open the file
 	vim.cmd("cd " .. config.pkm_dir)

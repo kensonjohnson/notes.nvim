@@ -20,7 +20,6 @@ M.defaults = {
 	},
 	templates = {
 		daily = {
-			sections = { "Tasks", "Blockers", "Impact" },
 			tags = "[#daily]",
 		},
 		quick = {
@@ -129,6 +128,72 @@ local function validate_frontmatter(frontmatter)
 	end
 end
 
+-- Validate template section configuration
+local function validate_template_section(section, path)
+	validate_type(section, "table", path)
+
+	if section.title then
+		validate_type(section.title, "string", path .. ".title")
+	end
+
+	if section.content then
+		if type(section.content) ~= "string" and type(section.content) ~= "table" then
+			errors.type_error(path .. ".content", "string or table", type(section.content))
+		end
+	end
+
+	if section.condition then
+		if type(section.condition) ~= "string" and type(section.condition) ~= "function" then
+			errors.type_error(path .. ".condition", "string or function", type(section.condition))
+		end
+	end
+end
+
+-- Validate individual template configuration
+local function validate_template_config(template, path)
+	-- Template can be a function, table, or nil
+	if template == nil then
+		return
+	end
+
+	if type(template) == "function" then
+		-- Function templates are always valid (will be validated at runtime)
+		return
+	end
+
+	if type(template) ~= "table" then
+		errors.type_error(path, "function or table", type(template))
+	end
+
+	-- Validate table-based template
+	if template.file then
+		-- File-based template
+		validate_type(template.file, "string", path .. ".file")
+	elseif template.sections then
+		-- Object-based template with sections
+		validate_type(template.sections, "table", path .. ".sections")
+		for i, section in ipairs(template.sections) do
+			validate_template_section(section, path .. ".sections[" .. i .. "]")
+		end
+	elseif template[1] then
+		-- Array-based template (legacy support)
+		validate_array(template, path)
+	end
+
+	-- Validate common template properties
+	if template.header then
+		validate_type(template.header, "string", path .. ".header")
+	end
+
+	if template.footer then
+		validate_type(template.footer, "string", path .. ".footer")
+	end
+
+	if template.tags then
+		validate_type(template.tags, "string", path .. ".tags")
+	end
+end
+
 -- Validate template configuration
 local function validate_templates(templates)
 	if not templates then
@@ -138,25 +203,14 @@ local function validate_templates(templates)
 
 	-- Validate daily template
 	if templates.daily then
-		validate_type(templates.daily, "table", "templates.daily")
-
-		if templates.daily.sections ~= nil then
-			validate_array(templates.daily.sections, "templates.daily.sections")
-		end
-
-		if templates.daily.tags ~= nil then
-			validate_string_not_empty(templates.daily.tags, "templates.daily.tags")
-		end
+		validate_template_config(templates.daily, "templates.daily")
 	end
 
 	-- Validate quick template
 	if templates.quick then
-		validate_type(templates.quick, "table", "templates.quick")
+		validate_template_config(templates.quick, "templates.quick")
 
-		if templates.quick.tags ~= nil then
-			validate_type(templates.quick.tags, "string", "templates.quick.tags")
-		end
-
+		-- Validate quick-specific options
 		if templates.quick.id_length ~= nil then
 			validate_number_range(templates.quick.id_length, 4, 32, "templates.quick.id_length")
 		end

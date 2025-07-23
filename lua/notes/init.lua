@@ -55,17 +55,21 @@ function M.setup_commands(opts)
 	end, { desc = "Create a new quick note" })
 end
 
--- Helper function to wrap daily functions with config
-local function with_config(fn)
-	return function(...)
-		return fn(..., config.options)
-	end
+-- Export individual functions for advanced users
+M.daily_note = function()
+	return daily.daily_note(config.options)
 end
 
--- Export individual functions for advanced users
-M.daily_note = with_config(daily.daily_note)
-M.tomorrow_note = with_config(daily.tomorrow_note)
-M.quick_note = with_config(daily.quick_note)
-M.dynamic_daily_note = with_config(daily.dynamic_daily_note)
+M.tomorrow_note = function()
+	return daily.tomorrow_note(config.options)
+end
+
+M.quick_note = function()
+	return daily.quick_note(config.options)
+end
+
+M.dynamic_daily_note = function(input)
+	return daily.dynamic_daily_note(input, config.options)
+end
 
 return M
