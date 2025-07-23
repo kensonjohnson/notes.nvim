@@ -17,9 +17,12 @@ A Neovim plugin for managing daily notes and quick notes with frontmatter suppor
 **IMPORTANT**: You must specify your PKM directory in the configuration. The plugin will not load without it.
 
 Common PKM directory examples:
-- Windows: `'C:\\Users\\username\\Documents\\pkm'`
-- macOS/Linux: `'~/Documents/pkm'` or `'/home/username/pkm'`
-- Obsidian vault: `'~/Documents/MyVault'`
+- **macOS/Linux**: `'~/Documents/pkm'` or `'/home/username/pkm'`
+- **Windows**: `'C:\\Users\\username\\Documents\\pkm'` or `'%USERPROFILE%\\Documents\\pkm'`
+- **Cross-platform**: `vim.fn.expand('~/Documents/pkm')` (works everywhere)
+- **Obsidian vault**: `'~/Documents/MyVault'`
+
+The plugin supports tilde (`~`) expansion and environment variables on all platforms.
 
 ### Setup with Lazy.nvim
 
@@ -67,7 +70,7 @@ The `setup()` function accepts the following options:
 
 ```lua
 {
-  pkm_dir = 'C:\\Users\\yourusername\\pkm',  -- REQUIRED: Your PKM directory
+  pkm_dir = '~/Documents/pkm',  -- REQUIRED: Your PKM directory (supports ~ and env vars)
   frontmatter = {
     use_frontmatter = true,          -- Enable/disable frontmatter
     auto_update_modified = true,     -- Auto-update modified timestamp on save
