@@ -26,7 +26,7 @@ function M.setup_autocommands(opts)
 		group = augroup,
 		pattern = "*.md",
 		callback = function()
-			utils.update_modified_timestamp(opts)
+			utils.update_modified_timestamp(config.options)
 		end,
 		desc = "Update modified timestamp in PKM notes frontmatter",
 	})

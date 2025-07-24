@@ -98,8 +98,7 @@ function M.update_modified_timestamp(config)
 	end
 
 	local buf = vim.api.nvim_get_current_buf()
-	local config = require("notes.config")
-	local scan_lines = config.options.frontmatter.scan_lines
+	local scan_lines = config.frontmatter.scan_lines
 	local lines = vim.api.nvim_buf_get_lines(buf, 0, scan_lines, false)
 
 	-- Check if file has frontmatter
