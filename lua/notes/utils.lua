@@ -48,9 +48,9 @@ function M.is_pkm_file(filepath, pkm_dir)
 	if not filepath then
 		return false
 	end
-	-- Normalize path separators and convert to lowercase for comparison
-	local normalized_path = filepath:gsub("/", "\\"):lower()
-	local normalized_pkm = pkm_dir:lower()
+	-- Normalize both paths to absolute paths for comparison
+	local normalized_path = M.expand_path(filepath):lower()
+	local normalized_pkm = M.expand_path(pkm_dir):lower()
 	return normalized_path:find(normalized_pkm, 1, true) == 1
 end
 
