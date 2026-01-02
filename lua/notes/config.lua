@@ -11,6 +11,7 @@ M.defaults = {
 		use_frontmatter = true,
 		auto_update_modified = true,
 		scan_lines = 20,
+		overwrite_frontmatter = false,
 		fields = {
 			id = true,
 			created = true,

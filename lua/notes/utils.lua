@@ -130,4 +130,50 @@ function M.update_modified_timestamp(config)
 	end
 end
 
+-- Helper function to add frontmatter to current buffer
+function M.add_frontmatter_to_current_buffer(config)
+	local errors = require("notes.errors")
+	local buf = vim.api.nvim_get_current_buf()
+	local scan_lines = config.frontmatter.scan_lines
+	local lines = vim.api.nvim_buf_get_lines(buf, 0, scan_lines, false)
+
+	-- Check if frontmatter already exists
+	if #lines >= 1 and lines[1] == "---" then
+		-- Find the closing frontmatter delimiter
+		local frontmatter_end = nil
+		for i = 2, #lines do
+			if lines[i] == "---" then
+				frontmatter_end = i
+				break
+			end
+		end
+
+		if frontmatter_end then
+			-- Frontmatter exists
+			if not config.frontmatter.overwrite_frontmatter then
+				errors.user_error(
+					"Frontmatter already exists",
+					"Set overwrite_frontmatter = true in config to replace existing frontmatter"
+				)
+				return
+			end
+
+			-- Remove existing frontmatter
+			vim.api.nvim_buf_set_lines(buf, 0, frontmatter_end, false, {})
+		end
+	end
+
+	-- Generate random ID using quick note id_length
+	local id_length = (config.templates.quick and config.templates.quick.id_length) or 8
+	local random_id = M.create_id(id_length)
+
+	-- Generate frontmatter lines
+	local frontmatter = M.generate_frontmatter(random_id, "[]", config)
+
+	-- Insert frontmatter at the beginning of the buffer
+	vim.api.nvim_buf_set_lines(buf, 0, 0, false, frontmatter)
+
+	vim.notify("notes.nvim: Frontmatter added successfully", vim.log.levels.INFO)
+end
+
 return M
