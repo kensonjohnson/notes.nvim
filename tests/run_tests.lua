@@ -46,6 +46,7 @@ local test_suites = {
 	{ path = "tests.spec.templates_spec", name = "Template System" },
 	{ path = "tests.spec.config_spec", name = "Configuration Validation" },
 	{ path = "tests.spec.errors_spec", name = "Error Handling" },
+	{ path = "tests.spec.add_frontmatter_spec", name = "Add Frontmatter" },
 }
 
 for _, suite in ipairs(test_suites) do
