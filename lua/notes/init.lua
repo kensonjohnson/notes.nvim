@@ -53,6 +53,10 @@ function M.setup_commands(opts)
 	vim.api.nvim_create_user_command("QuickNote", function()
 		daily.quick_note(opts)
 	end, { desc = "Create a new quick note" })
+
+	vim.api.nvim_create_user_command("AddFrontmatter", function()
+		utils.add_frontmatter_to_current_buffer(opts)
+	end, { desc = "Add frontmatter to current markdown file" })
 end
 
 -- Helper function to ensure setup has been called
@@ -81,6 +85,10 @@ end
 
 M.dynamic_daily_note = function(input)
 	return daily.dynamic_daily_note(input, ensure_setup())
+end
+
+M.add_frontmatter = function()
+	return utils.add_frontmatter_to_current_buffer(ensure_setup())
 end
 
 return M

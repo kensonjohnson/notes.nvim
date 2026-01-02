@@ -159,6 +159,38 @@ local function test_error_message_format()
 	test_utils.assert_matches("pkm_dir.*required", error_msg, "Error should mention missing field")
 end
 
+local function test_overwrite_frontmatter_validation()
+	reset_config()
+	-- Test default value
+	config.setup({ pkm_dir = "/tmp/test_pkm" })
+	test_utils.assert_equal(false, config.options.frontmatter.overwrite_frontmatter, "Should default to false")
+
+	-- Test accepting boolean values
+	reset_config()
+	test_utils.assert_no_error(function()
+		config.setup({
+			pkm_dir = "/tmp/test_pkm",
+			frontmatter = { overwrite_frontmatter = true },
+		})
+	end, "Should accept boolean true")
+
+	reset_config()
+	test_utils.assert_no_error(function()
+		config.setup({
+			pkm_dir = "/tmp/test_pkm",
+			frontmatter = { overwrite_frontmatter = false },
+		})
+	end, "Should accept boolean false")
+
+	-- Test rejecting non-boolean values
+	test_utils.assert_error(function()
+		config.setup({
+			pkm_dir = "/tmp/test_pkm",
+			frontmatter = { overwrite_frontmatter = "yes" },
+		})
+	end, "Expected boolean", "Should reject non-boolean value")
+end
+
 -- Run all tests
 local tests = {
 	["accept minimal valid config"] = test_minimal_valid_config,
@@ -177,6 +209,7 @@ local tests = {
 	["validate template sections"] = test_template_section_validation,
 	["validate boolean fields"] = test_boolean_field_validation,
 	["format error messages"] = test_error_message_format,
+	["validate overwrite_frontmatter"] = test_overwrite_frontmatter_validation,
 }
 
 local passed, total = test_utils.run_test_suite("Configuration Validation Tests", tests)

@@ -8,6 +8,7 @@ A powerful yet simple Neovim plugin for managing daily notes and quick notes wit
 - **⚡ Quick Notes**: Create random-named notes in an inbox for rapid capture
 - **🎨 Flexible Templates**: Progressive enhancement from zero-config to fully customizable
 - **📝 Smart Frontmatter**: Automatic YAML frontmatter with timestamps and metadata
+- **➕ Add Frontmatter**: Add frontmatter to any existing markdown file
 - **🔄 Auto-timestamps**: Automatically update modified timestamps on save
 - **🎯 Smart Completion**: Intelligent date completion with fuzzy matching
 - **🛡️ Robust Error Handling**: Helpful error messages with actionable suggestions
@@ -54,8 +55,9 @@ return {
     { '<leader>nd', function() require('notes').daily_note() end, desc = 'Open daily note' },
     { '<leader>nt', function() require('notes').tomorrow_note() end, desc = 'Open tomorrow note' },
     { '<leader>nn', function() require('notes').quick_note() end, desc = 'Create quick note' },
+    { '<leader>nf', function() require('notes').add_frontmatter() end, desc = 'Add frontmatter' },
   },
-  cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote' },
+  cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote', 'AddFrontmatter' },
   ft = "markdown", 
 }
 ```
@@ -77,8 +79,9 @@ return {
     { '<leader>nd', function() require('notes').daily_note() end, desc = 'Open daily note' },
     { '<leader>nt', function() require('notes').tomorrow_note() end, desc = 'Open tomorrow note' },
     { '<leader>nn', function() require('notes').quick_note() end, desc = 'Create quick note' },
+    { '<leader>nf', function() require('notes').add_frontmatter() end, desc = 'Add frontmatter' },
   },
-  cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote' },
+  cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote', 'AddFrontmatter' },
 }
 ```
 
@@ -221,6 +224,7 @@ require('notes').setup({
     use_frontmatter = true,          -- Enable/disable frontmatter
     auto_update_modified = true,     -- Auto-update modified timestamp on save
     scan_lines = 20,                 -- Lines to scan for frontmatter (1-100)
+    overwrite_frontmatter = false,   -- Allow :AddFrontmatter to replace existing frontmatter
     fields = {
       id = true,                     -- Include ID field
       created = true,                -- Include created timestamp
@@ -243,6 +247,19 @@ require('notes').setup({
 })
 ```
 
+## ➕ Adding Frontmatter to Existing Files
+
+Add frontmatter to any markdown file with `:AddFrontmatter`:
+
+```vim
+:AddFrontmatter   " Adds frontmatter with random ID and empty tags
+```
+
+- Generates random ID (same as quick notes)
+- Uses empty tags `[]` by default
+- Respects your `frontmatter.fields` settings
+- Won't overwrite existing frontmatter unless `overwrite_frontmatter = true`
+
 ## 📁 Directory Structure
 
 Daily notes are organized as:
@@ -261,6 +278,7 @@ PKM_DIR/+Inbox/randomname.md
 - `:DailyNote [date]` - Open daily note (supports smart date input)
 - `:TomorrowNote` - Open tomorrow's daily note
 - `:QuickNote` - Create a new quick note
+- `:AddFrontmatter` - Add frontmatter to current markdown file
 
 ### Examples
 ```vim
@@ -279,6 +297,7 @@ require('notes').daily_note()
 require('notes').tomorrow_note()
 require('notes').quick_note()
 require('notes').dynamic_daily_note('next monday')
+require('notes').add_frontmatter()
 ```
 
 ## 🔧 Template Context
