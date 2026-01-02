@@ -56,8 +56,37 @@ return {
     { '<leader>nn', function() require('notes').quick_note() end, desc = 'Create quick note' },
   },
   cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote' },
+  ft = "markdown", 
 }
 ```
+
+### ⚡ Lazy Loading Configuration
+
+**IMPORTANT**: If you use lazy loading with `cmd` and/or `keys`, you should also include `ft = "markdown"` to ensure autocommands are properly registered. 
+
+```lua
+return {
+  "kensonjohnson/notes.nvim",
+  config = function()
+    require('notes').setup({
+      pkm_dir = '~/Documents/notes',
+    })
+  end,
+  ft = "markdown",  -- Makes sure autocommands register without needing to create a new note with :DailyNote or :QuickNote
+  keys = {
+    { '<leader>nd', function() require('notes').daily_note() end, desc = 'Open daily note' },
+    { '<leader>nt', function() require('notes').tomorrow_note() end, desc = 'Open tomorrow note' },
+    { '<leader>nn', function() require('notes').quick_note() end, desc = 'Create quick note' },
+  },
+  cmd = { 'DailyNote', 'TomorrowNote', 'QuickNote' },
+}
+```
+
+**Why `ft = "markdown"` is needed:**
+- The plugin sets up autocommands to auto-update the `modified` field in frontmatter
+- With only `cmd`, the plugin loads when commands are executed, but autocommands aren't registered until then
+- Adding `ft = "markdown"` ensures the plugin loads when you open any markdown file, registering the autocommands
+- This allows the `modified` timestamp to update automatically when you save files in your PKM directory
 
 ## 🎨 Template System
 
