@@ -88,7 +88,7 @@ local function validate_frontmatter(frontmatter)
 	validate_type(frontmatter, "table", "frontmatter")
 
 	-- Validate boolean fields
-	local boolean_fields = { "use_frontmatter", "auto_update_modified" }
+	local boolean_fields = { "use_frontmatter", "auto_update_modified", "overwrite_frontmatter" }
 	for _, field in ipairs(boolean_fields) do
 		if frontmatter[field] ~= nil then
 			validate_type(frontmatter[field], "boolean", "frontmatter." .. field)
