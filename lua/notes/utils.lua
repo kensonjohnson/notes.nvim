@@ -1,5 +1,8 @@
 -- Utility functions for notes.nvim plugin
 
+-- Seed the random number generator once at module load
+math.randomseed(os.time())
+
 local M = {}
 
 -- Helper function to ensure directory exists
